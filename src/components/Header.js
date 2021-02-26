@@ -38,6 +38,7 @@ const Header = () => {
                     </td>
 
                     <td>
+                        <br/>
                         <input type="button" value="Submit" className="submitBtn"></input>
                     </td>
                 </tr>
