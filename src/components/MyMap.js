@@ -41,13 +41,13 @@ export class MyMap extends Component {
                 lat : this.state.mapCenter.lat,
                 lng : this.state.mapCenter.lng
             }}
-            >
-          <Marker 
+        >
+        <Marker 
             position = {{
                 lat : this.state.mapCenter.lat,
                 lng : this.state.mapCenter.lng
             }}
-          />
+        />
         </Map>
       )
     }
