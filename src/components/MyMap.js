@@ -1,60 +1,82 @@
-import React, { Component} from 'react';
-import {Map, Marker, GoogleApiWrapper} from 'google-maps-react';
+import React, { useEffect, useState } from 'react'
+import ReactMapGl, {
+  Marker,
+  GeolocateControl,
+  Source,
+  Layer,
+} from 'react-map-gl'
+import 'mapbox-gl/dist/mapbox-gl.css';
 
+const MyMap = ({coords}) => {
 
-export class MyMap extends Component {
-    state = {
-      showingInfoWindow: false,
-      activeMarker: {},
-      selectedPlace: {},
+  const [viewport, setViewport] = React.useState({
+    latitude: 23.2584857,
+    longitude: 77.5912997,
+    zoom: 3,
+    width: '100%',
+    height: '100%',
+  })
 
-      mapCenter : {
-          lat : 23.259933,
-          lng : 77.412613
-      }
-    };
-   
-    onMarkerClick = (props, marker, e) =>
-      this.setState({
-        selectedPlace: props,
-        activeMarker: marker,
-        showingInfoWindow: true
-      });
-   
-    onMapClicked = (props) => {
-      if (this.state.showingInfoWindow) {
-        this.setState({
-          showingInfoWindow: false,
-          activeMarker: null
-        })
-      }
-    };
-   
-    render() {
-      return (
-        <Map google={this.props.google}
-            initialCenter={{
-                lat : this.state.mapCenter.lat,
-                lng : this.state.mapCenter.lng
-            }}
-            center = {{
-                lat : this.state.mapCenter.lat,
-                lng : this.state.mapCenter.lng
-            }}
-        >
-        <Marker 
-            position = {{
-                lat : this.state.mapCenter.lat,
-                lng : this.state.mapCenter.lng
-            }}
-        />
-        </Map>
+  const [coord, setCoord] = useState([])
+
+  useEffect(() => {
+    if (coord.length < coords.length) {
+      coords.map((val) =>
+        setCoord((prevState) => [...prevState, [val.latitude, val.longitude]])
       )
     }
+  }, [coords, coord])
+
+  const data = {
+    type: 'Feature',
+    geometry: {
+      type: 'LineString',
+      coordinates: coord,
+    },
   }
 
-export default GoogleApiWrapper({
-    apiKey: ('API KEY HERE')
-})(MyMap)
-    
-    
+  return (
+    <div className='myMap'>
+      <ReactMapGl
+        mapboxApiAccessToken={process.env.REACT_APP_MAPBOXGL_ACCESSTOKEN}
+        {...viewport}
+        mapStyle='mapbox://styles/mapbox/streets-v11'
+        onViewportChange={(viewport) => setViewport(viewport)}
+        viewportChangeMethod={'flyTo'}>
+        {coords.map((mark, index) => (
+          <Marker
+            key={index}
+            latitude={parseInt(mark.latitude)}
+            longitude={parseInt(mark.longitude)}
+            offsetTop={-20}
+            offsetLeft={-10}>
+            <button className='marker-btn'>
+              <img
+                src='https://cdn0.iconfinder.com/data/icons/small-n-flat/24/678111-map-marker-512.png'
+                alt='marker-icon'
+                style={{height:"20px",width:"20px"}}
+              />
+            </button>
+          </Marker>
+        ))}
+        <GeolocateControl position='top-right' />
+        <Source id='route' type='geojson' data={data} />
+        <Layer
+          id='route'
+          type='line'
+          source='route'
+          layout={{
+            'line-join': 'round',
+            'line-cap': 'round',
+          }}
+          paint={{
+            'line-color': '#888',
+            'line-width': 8,
+          }}
+        />
+      </ReactMapGl>
+    </div>
+  )
+}
+
+export default MyMap
