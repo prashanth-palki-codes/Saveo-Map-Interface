@@ -21,8 +21,10 @@ function App() {
   return (
     <div className="container">
       <Header handleInputs={handleInputs}/>
-      <Coordinates inputCoords={inputs}/>
-      <MyMap coords={inputs}/>
+      <div className="myDiv">
+        <Coordinates inputCoords={inputs}/>
+        <MyMap coords={inputs}/>
+      </div>
     </div>
   );
 }
